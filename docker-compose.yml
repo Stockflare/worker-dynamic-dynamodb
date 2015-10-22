@@ -1,0 +1,7 @@
+dynamic:
+  build: .
+  command: entrypoint.sh
+  env_file:
+    - ./.env
+  volumes:
+    - .:/stockflare

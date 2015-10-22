@@ -1,0 +1,2 @@
+#!/usr/bin/env bash
+$@ 2>&1 1> >(/usr/bin/logger -t ${LOGGER_TAG} -p local6.info -n ${LOGGER_HOSTNAME} -P 514)
