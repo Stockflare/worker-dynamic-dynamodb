@@ -52,9 +52,6 @@ ENV MAX_PROVISIONED_WRITES 500
 
 RUN apt-get update && apt-get install -y python-pip
 
-# RUN apt-get update && apt-get install -y language-pack-en-base vim curl build-essential git-core \
-      #man dnsutils python-pip && apt-get autoremove -y
-
 RUN sudo pip install awscli dynamic-dynamodb
 
 ADD etc/confd /etc/confd
