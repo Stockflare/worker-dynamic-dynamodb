@@ -1,95 +1,101 @@
 [global]
+{{ if getenv "AWS_CREDENTIALS_ENABLED" }}
+# AWS access keys
+aws-access-key-id: {{getenv "AWS_ACCESS_KEY_ID"}}
+aws-secret-access-key-id: {{getenv "AWS_SECRET_ACCESS_KEY"}}
+region: {{getenv "AWS_REGION"}}
+{{ end }}
 
 # How often should Dynamic DynamoDB monitor changes (in seconds)
-check-interval: 60
+check-interval: {{getenv "CHECK_INTERVAL"}}
 
-# Circuit breaker configuration
+{{ if getenv "CIRCUIT_BREAKER_ENABLED" }}
+# Circuit breaker enabled?
+
 # No provisioning updates will be made unless this URL returns
 # a HTTP 200 OK status code
-#circuit-breaker-url: http://my.service.com/v1/is_up
-#circuit-breaker-timeout: 500
+circuit-breaker-url: {{getenv "CIRCUIT_BREAKER_URL"}}
+circuit-breaker-timeout: {{getenv "CIRCUIT_BREAKER_TIMEOUT"}}
+{{ end }}
 
 [logging]
 # Log level [debug|info|warning|error]
-log-level: info
+log-level: {{getenv "LOG_LEVEL"}}
 
-# Log file (comment out to get only console output)
-#log-file: /var/log/dynamic-dynamodb.log
+{{ if getenv "LOG_FILE_ENABLED" }}
+# Log file enabled?
 
-# External Python logging configuration file
-# Overrides both log-level and log-file
-# log-config-file: /path/to/logging.conf
+log-file: {{getenv "LOG_FILE"}}
+{{ end }}
 
-[table: .*]
-#
-# Read provisioning configuration
-#
+[table: {{getenv "DYNAMODB_TABLE_REGEXP"}}]
 
-# Thresholds for trigging throughput alarm to send notification (%)
-# reads-upper-alarm-threshold: 0
-# reads-lower-alarm-threshold: 0
+{{ if getenv "NOTIFICATION_SERVICE_ENABLED"}}
+# Thresholds for trigging throughput alarm to send notification
+reads-upper-alarm-threshold: {{getenv "READS_UPPER_ALARM_THRESHOLD"}}
+reads-lower-alarm-threshold: {{getenv "READS_LOWER_ALARM_THRESHOLD"}}
+{{ end }}
 
 # Enable or disable reads autoscaling
-enable-reads-autoscaling = true
+enable-reads-autoscaling = {{getenv "ENABLE_READS_AUTOSCALING"}}
 
-# Thresholds for scaling up or down the provisioning (%)
-reads-upper-threshold: 90
-reads-lower-threshold: 30
+# Thresholds for scaling up or down the provisioning
+reads-upper-threshold: {{getenv "READS_UPPER_THRESHOLD"}}
+reads-lower-threshold: {{getenv "READS_LOWER_THRESHOLD"}}
 
-# How many percent should Dynamic DynamoDB increase/decrease provisioning with (%)
-increase-reads-with: 50
-decrease-reads-with: 50
+# How many percent should Dynamic DynamoDB increase/decrease provisioning with
+increase-reads-with: {{getenv "INCREASE_READS_WITH"}}
+decrease-reads-with: {{getenv "DECREASE_READS_WITH"}}
 
 # Units to increase or decrease reads with, must be either percent or units
-increase-reads-unit: percent
-decrease-reads-unit: percent
+increase-reads-unit: {{getenv "INCREASE_READS_UNIT"}}
+decrease-reads-unit: {{getenv "DECREASE_READS_UNIT"}}
 
 # Maximum and minimum read provisioning
 # Dynamic DynamoDB will not provision any more or less reads than this
-min-provisioned-reads: 1
-max-provisioned-reads: 500
+min-provisioned-reads: {{getenv "MIN_PROVISIONED_READS"}}
+max-provisioned-reads: {{getenv "MAX_PROVISIONED_READS"}}
 
-#
-# Write provisioning configuration
-#
-
+{{ if getenv "NOTIFICATION_SERVICE_ENABLED"}}
 # Threshold for trigging throughput alarm to send notification (%)
-# writes-upper-alarm-threshold: 0
-# writes-lower-alarm-threshold: 0
+writes-upper-alarm-threshold: {{getenv "WRITES_UPPER_ALARM_THRESHOLD"}}
+writes-lower-alarm-threshold: {{getenv "WRITES_LOWER_ALARM_THRESHOLD"}}
+{{ end }}
 
 # Enable or disable writes autoscaling
-enable-writes-autoscaling = true
+enable-writes-autoscaling = {{getenv "ENABLE_WRITES_AUTOSCALING"}}
 
 # Thresholds for scaling up or down the provisioning (%)
-writes-upper-threshold: 90
-writes-lower-threshold: 30
+writes-upper-threshold: {{getenv "WRITES_UPPER_THRESHOLD"}}
+writes-lower-threshold: {{getenv "WRITES_LOWER_THRESHOLD"}}
 
 # How many percent should Dynamic DynamoDB increase/decrease provisioning with (%)
-increase-writes-with: 50
-decrease-writes-with: 50
+increase-writes-with: {{getenv "INCREASE_WRITES_WITH"}}
+decrease-writes-with: {{getenv "DECREASE_WRITES_WITH"}}
 
 # Units to increase or decrease writes with, must be either percent or units
-increase-writes-unit: percent
-decrease-writes-unit: percent
+increase-writes-unit: {{getenv "INCREASE_WRITES_UNIT"}}
+decrease-writes-unit: {{getenv "DECREASE_WRITES_UNIT"}}
 
 # Maximum and minimum write provisioning
 # Dynamic DynamoDB will not provision any more or less writes than this
-min-provisioned-writes: 1
-max-provisioned-writes: 500
+min-provisioned-writes: {{getenv "MIN_PROVISIONED_WRITES"}}
+max-provisioned-writes: {{getenv "MAX_PROVISIONED_WRITES"}}
 
+{{ if getenv "MAINTENANCE_WINDOWS_ENABLED"}}
 #
 # Maintenance windows (in UTC)
 #
-#maintenance-windows: 22:00-23:59,00:00-06:00
+maintenance-windows: {{getenv "MAINTENANCE_WINDOWS"}}
+{{ end }}
 
+{{ if getenv "NOTIFICATION_SERVICE_ENABLED"}}
 #
 # Simple Notification Service configuration
 #
 
 # Topic ARN to publish notifications to
-#
-# Example:
-# sns-topic-arn: arn:aws:sns:us-east-1:123456789012:dynamic-dynamodb-my_table
+sns-topic-arn: {{getenv "SNS_TOPIC_ARN"}}
 
 # Message types to send as SNS notifications
 #
@@ -98,112 +104,19 @@ max-provisioned-writes: 500
 # - scale-down                  Get notifications when the table is scaled down
 # - high-throughput-alarm       Get notifications when exceed high throughput threshold
 # - low-throughput-alarm        Get notifications when below low throughput threshold
-#
-# Example:
-# sns-message-types: scale-up, scale-down, high-throughput-alarm, low-throughput-alarm
+sns-messages-types: {{getenv "SNS_MESSAGE_TYPES"}}
+{{ end }}
 
-#
-# Other settings
-#
+{{ if getenv "ALLOW_SCALING_DOWN_READS_ON_0_PERCENT"}}
+allow-scaling-down-reads-on-0-percent: {{getenv "ALLOW_SCALING_DOWN_READS_ON_0_PERCENT"}}
+{{ end }}
 
-# Allow down scaling when at 0% consumed reads
-#allow-scaling-down-reads-on-0-percent: true
-#allow-scaling-down-writes-on-0-percent: true
+{{ if getenv "ALLOW_SCALING_DOWN_WRITES_ON_0_PERCENT"}}
+allow-scaling-down-writes-on-0-percent: {{getenv "ALLOW_SCALING_DOWN_WRITES_ON_0_PERCENT"}}
+{{ end }}
 
+{{ if getenv "ALWAYS_DECREASE_RW_TOGETHER"}}
 # Restrict scale down to only happen when BOTH reads AND writes are in need
 # of scaling down. Set this to "true" to minimize down scaling.
-#always-decrease-rw-together: true
-
-[gsi: .* table: .*]
-#
-# Read provisioning configuration
-#
-
-# Thresholds for trigging throughput alarm to send notification (%)
-# reads-upper-alarm-threshold: 0
-# reads-lower-alarm-threshold: 0
-
-# Enable or disable reads autoscaling
-enable-reads-autoscaling = true
-
-# Thresholds for scaling up or down the provisioning (%)
-reads-upper-threshold: 90
-reads-lower-threshold: 30
-
-# How many percent should Dynamic DynamoDB increase/decrease provisioning with (%)
-increase-reads-with: 50
-decrease-reads-with: 50
-
-# Units to increase or decrease reads with, must be either percent or units
-increase-reads-unit: percent
-decrease-reads-unit: percent
-
-# Maximum and minimum read provisioning
-# Dynamic DynamoDB will not provision any more or less reads than this
-min-provisioned-reads: 1
-max-provisioned-reads: 500
-
-#
-# Write provisioning configuration
-#
-
-# Threshold for trigging throughput alarm to send notification (%)
-# writes-upper-alarm-threshold: 0
-# writes-lower-alarm-threshold: 0
-
-# Enable or disable writes autoscaling
-enable-writes-autoscaling = true
-
-# Thresholds for scaling up or down the provisioning (%)
-writes-upper-threshold: 90
-writes-lower-threshold: 30
-
-# How many percent should Dynamic DynamoDB increase/decrease provisioning with (%)
-increase-writes-with: 50
-decrease-writes-with: 50
-
-# Units to increase or decrease writes with, must be either percent or units
-increase-writes-unit: percent
-decrease-writes-unit: percent
-
-# Maximum and minimum write provisioning
-# Dynamic DynamoDB will not provision any more or less writes than this
-min-provisioned-writes: 1
-max-provisioned-writes: 500
-
-#
-# Maintenance windows (in UTC)
-#
-#maintenance-windows: 22:00-23:59,00:00-06:00
-
-#
-# Simple Notification Service configuration
-#
-
-# Topic ARN to publish notifications to
-#
-# Example:
-# sns-topic-arn: arn:aws:sns:us-east-1:123456789012:dynamic-dynamodb-my_table
-
-# Message types to send as SNS notifications
-#
-# Comma separated list. Currently supported values:
-# - scale-up                    Get notifications when the table is scaled up
-# - scale-down                  Get notifications when the table is scaled
-# - high-throughput-alarm       Get notifications when exceed high throughput threshold
-# - low-throughput-alarm        Get notifications when below low throughput threshold
-#
-# Example:
-# sns-message-types: scale-up, scale-down, high-throughput-alarm, low-throughput-alarm
-
-#
-# Other settings
-#
-
-# Allow down scaling when at 0% consumed reads
-#allow-scaling-down-reads-on-0-percent: true
-#allow-scaling-down-writes-on-0-percent: true
-
-# Restrict scale down to only happen when BOTH reads AND writes are in need
-# of scaling down. Set this to "true" to minimize down scaling.
-#always-decrease-rw-together: true
+always-decrease-rw-together: {{getenv "ALWAYS_DECREASE_RW_TOGETHER"}}
+{{ end }}

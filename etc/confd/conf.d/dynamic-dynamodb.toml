@@ -1,0 +1,5 @@
+[template]
+src = "dynamic-dynamodb.conf.tmpl"
+dest = "/stockflare/dynamic-dynamodb.conf"
+owner = "root"
+mode = "0755"
