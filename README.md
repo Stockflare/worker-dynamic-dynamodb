@@ -1,5 +1,8 @@
-# Worker Scheduler
+# DynamoDB Throughput Scaler
 
-| Staging | Production |
-|:-:|:-:|
-|[![Build Status](http://drone.stocktio.com/api/badge/github.com/Stockflare/worker-scheduler/status.svg?branch=master)](http://drone.stocktio.com/github.com/Stockflare/worker-scheduler)| --- |
+Environment variables name mirror their configuration key, see the below examples:
+
+```
+check-interval == CHECK_INTERVAL
+reads-lower-alarm-threshold == READS_LOWER_ALARM_THRESHOLD
+```

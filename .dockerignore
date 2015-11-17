@@ -1,5 +1,2 @@
 .git/*
-.vagrant/*
 tmp/*
-public/bin/*
-.env
