@@ -50,6 +50,8 @@ ENV MIN_PROVISIONED_WRITES 1
 
 ENV MAX_PROVISIONED_WRITES 500
 
+ENV SNS_MESSAGE_TYPES "scale-up,scale-down,high-throughput-alarm,low-throughput-alarm"
+
 RUN apt-get update && apt-get install -y python-pip
 
 RUN sudo pip install awscli dynamic-dynamodb
