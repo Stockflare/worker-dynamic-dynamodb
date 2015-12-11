@@ -1,47 +1,69 @@
-# Start with a base Ubuntu 14:04 image
 FROM ubuntu:trusty
 
-MAINTAINER Mark Stratmann <mark@stratmann.me.uk>
+MAINTAINER Stockflare <info@stockflare.com>
 
-# Set up user environment
 ENV DEBIAN_FRONTEND noninteractive
-RUN adduser --disabled-password --gecos "" nuser && echo "nuser ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers
-# set HOME so 'npm install' and 'bower install' don't write to /
-ENV HOME /home/nuser
-ENV LANG en_US.UTF-8
-ENV LANGUAGE en_US.en
-ENV LC_ALL en_US.UTF-8
-USER nuser
-# RUN sudo locale-gen
 
-# Add all base dependencies
-RUN sudo apt-get update
-RUN sudo apt-get install -y language-pack-en-base
-RUN sudo apt-get install -y vim curl
-RUN sudo apt-get install -y build-essential
-RUN sudo apt-get install -y git-core
-RUN sudo apt-get install -y man
-RUN sudo apt-get install -y dnsutils
+ENV AWS_REGION us-east-1
 
-# Install the latest AWS cli - needed for S3 command line actions in scripts
-RUN sudo apt-get install -y python-pip
-RUN sudo pip install awscli
-RUN sudo pip install dynamic-dynamodb
+ENV CONFD_VERSION 0.10.0
 
-# Install logging boradcaster
-COPY bin/broadcast /usr/bin/broadcast
+ENV CHECK_INTERVAL 60
 
-# Add the application to the container (cwd)
+ENV LOG_LEVEL info
+
+ENV DYNAMODB_TABLE_REGEXP '.*'
+
+ENV ENABLE_READS_AUTOSCALING true
+
+ENV READS_UPPER_THRESHOLD 90
+
+ENV READS_LOWER_THRESHOLD 30
+
+ENV INCREASE_READS_WITH 50
+
+ENV DECREASE_READS_WITH 50
+
+ENV INCREASE_READS_UNIT percent
+
+ENV DECREASE_READS_UNIT percent
+
+ENV MIN_PROVISIONED_READS 1
+
+ENV MAX_PROVISIONED_READS 500
+
+ENV ENABLE_WRITES_AUTOSCALING true
+
+ENV WRITES_UPPER_THRESHOLD 90
+
+ENV WRITES_LOWER_THRESHOLD 30
+
+ENV INCREASE_WRITES_WITH 50
+
+ENV DECREASE_WRITES_WITH 50
+
+ENV INCREASE_WRITES_UNIT percent
+
+ENV DECREASE_WRITES_UNIT percent
+
+ENV MIN_PROVISIONED_WRITES 1
+
+ENV MAX_PROVISIONED_WRITES 500
+
+ENV SNS_MESSAGE_TYPES "scale-up,scale-down,high-throughput-alarm,low-throughput-alarm"
+
+RUN apt-get update && apt-get install -y python-pip
+
+RUN sudo pip install awscli dynamic-dynamodb
+
+ADD etc/confd /etc/confd
+
+ADD bin/confd-0.10.0-linux-amd64 /bin/confd
+
+ADD bin/broadcast /usr/bin/broadcast
+
 WORKDIR /stockflare
-RUN sudo chown -R nuser:nuser /stockflare/
 
-RUN sudo apt-get autoremove -y
+ADD boot boot
 
-# Copy across the rest of the code
-ADD . /stockflare
-RUN sudo chown -R nuser:nuser .
-
-VOLUME ["/stockflare"]
-
-# Setup the entrypoint
-ENTRYPOINT ["/bin/bash", "-l", "-c"]
+CMD ["./boot"]

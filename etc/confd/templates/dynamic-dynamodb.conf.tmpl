@@ -1,0 +1,122 @@
+[global]
+{{ if getenv "AWS_CREDENTIALS_ENABLED" }}
+# AWS access keys
+aws-access-key-id: {{getenv "AWS_ACCESS_KEY_ID"}}
+aws-secret-access-key-id: {{getenv "AWS_SECRET_ACCESS_KEY"}}
+region: {{getenv "AWS_REGION"}}
+{{ end }}
+
+# How often should Dynamic DynamoDB monitor changes (in seconds)
+check-interval: {{getenv "CHECK_INTERVAL"}}
+
+{{ if getenv "CIRCUIT_BREAKER_ENABLED" }}
+# Circuit breaker enabled?
+
+# No provisioning updates will be made unless this URL returns
+# a HTTP 200 OK status code
+circuit-breaker-url: {{getenv "CIRCUIT_BREAKER_URL"}}
+circuit-breaker-timeout: {{getenv "CIRCUIT_BREAKER_TIMEOUT"}}
+{{ end }}
+
+[logging]
+# Log level [debug|info|warning|error]
+log-level: {{getenv "LOG_LEVEL"}}
+
+{{ if getenv "LOG_FILE_ENABLED" }}
+# Log file enabled?
+
+log-file: {{getenv "LOG_FILE"}}
+{{ end }}
+
+[table: {{getenv "DYNAMODB_TABLE_REGEXP"}}]
+
+{{ if getenv "NOTIFICATION_SERVICE_ENABLED"}}
+# Thresholds for trigging throughput alarm to send notification
+reads-upper-alarm-threshold: {{getenv "READS_UPPER_ALARM_THRESHOLD"}}
+reads-lower-alarm-threshold: {{getenv "READS_LOWER_ALARM_THRESHOLD"}}
+{{ end }}
+
+# Enable or disable reads autoscaling
+enable-reads-autoscaling = {{getenv "ENABLE_READS_AUTOSCALING"}}
+
+# Thresholds for scaling up or down the provisioning
+reads-upper-threshold: {{getenv "READS_UPPER_THRESHOLD"}}
+reads-lower-threshold: {{getenv "READS_LOWER_THRESHOLD"}}
+
+# How many percent should Dynamic DynamoDB increase/decrease provisioning with
+increase-reads-with: {{getenv "INCREASE_READS_WITH"}}
+decrease-reads-with: {{getenv "DECREASE_READS_WITH"}}
+
+# Units to increase or decrease reads with, must be either percent or units
+increase-reads-unit: {{getenv "INCREASE_READS_UNIT"}}
+decrease-reads-unit: {{getenv "DECREASE_READS_UNIT"}}
+
+# Maximum and minimum read provisioning
+# Dynamic DynamoDB will not provision any more or less reads than this
+min-provisioned-reads: {{getenv "MIN_PROVISIONED_READS"}}
+max-provisioned-reads: {{getenv "MAX_PROVISIONED_READS"}}
+
+{{ if getenv "NOTIFICATION_SERVICE_ENABLED"}}
+# Threshold for trigging throughput alarm to send notification (%)
+writes-upper-alarm-threshold: {{getenv "WRITES_UPPER_ALARM_THRESHOLD"}}
+writes-lower-alarm-threshold: {{getenv "WRITES_LOWER_ALARM_THRESHOLD"}}
+{{ end }}
+
+# Enable or disable writes autoscaling
+enable-writes-autoscaling = {{getenv "ENABLE_WRITES_AUTOSCALING"}}
+
+# Thresholds for scaling up or down the provisioning (%)
+writes-upper-threshold: {{getenv "WRITES_UPPER_THRESHOLD"}}
+writes-lower-threshold: {{getenv "WRITES_LOWER_THRESHOLD"}}
+
+# How many percent should Dynamic DynamoDB increase/decrease provisioning with (%)
+increase-writes-with: {{getenv "INCREASE_WRITES_WITH"}}
+decrease-writes-with: {{getenv "DECREASE_WRITES_WITH"}}
+
+# Units to increase or decrease writes with, must be either percent or units
+increase-writes-unit: {{getenv "INCREASE_WRITES_UNIT"}}
+decrease-writes-unit: {{getenv "DECREASE_WRITES_UNIT"}}
+
+# Maximum and minimum write provisioning
+# Dynamic DynamoDB will not provision any more or less writes than this
+min-provisioned-writes: {{getenv "MIN_PROVISIONED_WRITES"}}
+max-provisioned-writes: {{getenv "MAX_PROVISIONED_WRITES"}}
+
+{{ if getenv "MAINTENANCE_WINDOWS_ENABLED"}}
+#
+# Maintenance windows (in UTC)
+#
+maintenance-windows: {{getenv "MAINTENANCE_WINDOWS"}}
+{{ end }}
+
+{{ if getenv "NOTIFICATION_SERVICE_ENABLED"}}
+#
+# Simple Notification Service configuration
+#
+
+# Topic ARN to publish notifications to
+sns-topic-arn: {{getenv "SNS_TOPIC_ARN"}}
+
+# Message types to send as SNS notifications
+#
+# Comma separated list. Currently supported values:
+# - scale-up                    Get notifications when the table is scaled up
+# - scale-down                  Get notifications when the table is scaled down
+# - high-throughput-alarm       Get notifications when exceed high throughput threshold
+# - low-throughput-alarm        Get notifications when below low throughput threshold
+sns-messages-types: {{getenv "SNS_MESSAGE_TYPES"}}
+{{ end }}
+
+{{ if getenv "ALLOW_SCALING_DOWN_READS_ON_0_PERCENT"}}
+allow-scaling-down-reads-on-0-percent: {{getenv "ALLOW_SCALING_DOWN_READS_ON_0_PERCENT"}}
+{{ end }}
+
+{{ if getenv "ALLOW_SCALING_DOWN_WRITES_ON_0_PERCENT"}}
+allow-scaling-down-writes-on-0-percent: {{getenv "ALLOW_SCALING_DOWN_WRITES_ON_0_PERCENT"}}
+{{ end }}
+
+{{ if getenv "ALWAYS_DECREASE_RW_TOGETHER"}}
+# Restrict scale down to only happen when BOTH reads AND writes are in need
+# of scaling down. Set this to "true" to minimize down scaling.
+always-decrease-rw-together: {{getenv "ALWAYS_DECREASE_RW_TOGETHER"}}
+{{ end }}
